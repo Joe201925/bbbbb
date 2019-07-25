@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/aop
+                           http://www.springframework.org/schema/aop/spring-aop.xsd
+http://www.springframework.org/schema/mvc
+                           http://www.springframework.org/schema/mvc/spring-mvc.xsd
+                           http://www.springframework.org/schema/tx
+                           http://www.springframework.org/schema/tx/spring-tx.xsd
+">
+  <!--1.创建realm自定义对象-->
+    <bean id="myrealm" class="com.qf.myrealm.Realma"></bean>
+    <!--2.创建安全管理器对象-->
+    <bean id="manager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="myrealm"></property>
+    </bean>
+
+    <!--3.定义shiro过滤器, id要和filtename相同-->
+<bean id="abc" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+     <property name="securityManager" ref="manager"></property>
+    <property name="loginUrl" value="/tologin"></property>
+    <property name="unauthorizedUrl" value="/error"></property>
+    <property name="filterChainDefinitions">
+        <value>
+            /login.jsp=anon
+            /**=authc
+            /add=perms[user:add]
+        </value>
+    </property>
+</bean>
+
+    <!--4.添加凭证器-->
+ <bean id="ma" class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+     <property name="hashAlgorithmName" value="md5"></property>
+     <property name="hashIterations" value="1"></property>
+ </bean>
+
+    <!--启用注解-->
+    <aop:config proxy-target-class="true"></aop:config>
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="manager"></property>
+    </bean>
+</beans>
